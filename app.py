@@ -22,6 +22,7 @@ with open("scaler.pkl", "rb") as file:
 # Streamlit app
 st.title("Customer Churn Prediction")
 
+
 # User input
 geography = st.selectbox("Geography", onehot_encoder_geo.categories_[0])
 gender = st.selectbox("Gender", label_encoder_gender.classes_)
@@ -34,11 +35,11 @@ is_active_member = st.selectbox("Is Active Member", [0, 1])
 estimated_salary = st.number_input("Estimated Salary")
 credit_score = st.number_input("Credit Score")
 
-# Create input data
+# Create input data dictionary
 input_data = pd.DataFrame(
     {
         "CreditScore": [credit_score],
-        "Gender": [label_encoder_gender.transform([gender])[0]],
+        "Gender": [label_encoder_gender.transform([gender])[0]],  # Encode gender
         "Age": [age],
         "Tenure": [tenure],
         "Balance": [balance],
@@ -49,11 +50,15 @@ input_data = pd.DataFrame(
     }
 )
 
-# One hot encode the geographical data
-geo_encoded = onehot_encoder_geo.transform(np.array([[geography]]))
-geo_encoded_df = pd.DataFrame(
-    geo_encoded, columns=onehot_encoder_geo.get_feature_names_out(["Geography"])
-)
+# One-hot encode the geographical data safely
+try:
+    geo_encoded = onehot_encoder_geo.transform(np.array([[geography]]))  # FIXED
+    geo_encoded_df = pd.DataFrame(
+        geo_encoded, columns=onehot_encoder_geo.get_feature_names_out(["Geography"])
+    )
+except Exception as e:
+    st.error(f"Error encoding geography: {e}")
+    st.stop()
 
 # Concatenate the data
 input_data = pd.concat([input_data.reset_index(drop=True), geo_encoded_df], axis=1)
@@ -65,9 +70,10 @@ input_data_scaled = scaler.transform(input_data)
 prediction = model.predict(input_data_scaled)
 prediction_prob = prediction[0][0]
 
-st.write(f"Churn Probability: {prediction_prob:.2f}")
+# Display the result
+st.write(f"**Churn Probability:** {prediction_prob:.2f}")
 
 if prediction_prob > 0.5:
-    st.write("The customer is likely to churn.")
+    st.error("🚨 The customer is likely to churn!")
 else:
-    st.write("The customer is likely to stay.")
+    st.success("✅ The customer is likely to stay.")
