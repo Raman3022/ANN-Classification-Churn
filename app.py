@@ -10,13 +10,13 @@ import pickle
 model = tf.keras.models.load_model("model.h5")
 
 # Load the encoders and scalers
-with open("C:\\Users\\Raman\\GEN AI PROJECTS\\label_encoder_gender.pkl", "rb") as file:
+with open("label_encoder_gender.pkl", "rb") as file:
     label_encoder_gender = pickle.load(file)
 
-with open("C:\\Users\\Raman\\GEN AI PROJECTS\\onehot_encoder-geo.pkl", "rb") as file:
+with open("onehot_encoder-geo.pkl", "rb") as file:
     onehot_encoder_geo = pickle.load(file)
 
-with open("C:\\Users\\Raman\\GEN AI PROJECTS\\scaler.pkl", "rb") as file:
+with open("scaler.pkl", "rb") as file:
     scaler = pickle.load(file)
 
 # Streamlit app
